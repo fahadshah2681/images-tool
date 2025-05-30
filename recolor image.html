@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronoMeterX | Advanced Image Recolor Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --success: #4cc9f0;
+            --dark: #1d1e2c;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --text-light: #f8f9fa;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+            --border-radius: 16px;
+        }
+
+        .dark-theme {
+            --primary: #4895ef;
+            --secondary: #4361ee;
+            --accent: #3f37c9;
+            --dark: #f8f9fa;
+            --light: #1d1e2c;
+            --card-bg: #252836;
+            --text: #f8f9fa;
+            --text-light: #212529;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --gray: #a0a4b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: var(--transition);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover:after,
+        .nav-links a.active:after {
+            width: 100%;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(67, 97, 238, 0.2);
+            transform: rotate(20deg);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: var(--text);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 0 100px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(67, 97, 238, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--gray);
+        }
+
+        /* Tool Section */
+        .tool-section {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tool-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+        }
+
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .preview-box {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            height: 250px;
+            background-color: rgba(233, 236, 239, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: var(--gray);
+            position: relative;
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .preview-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .tool-options {
+            grid-column: span 2;
+            margin-top: 20px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-card h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .color:hover {
+            transform: scale(1.1);
+        }
+
+        .color.active {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px white, 0 0 0 5px var(--primary);
+        }
+
+        .slider-container {
+            margin-top: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(67, 97, 238, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.03) 0%, transparent 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: white;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--card-bg);
+            padding: 80px 0 30px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(67, 97, 238, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text);
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .social-icon:hover {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: modalIn 0.4s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+            .tool-options {
+                grid-column: span 1;
+            }
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            position: absolute;
+                top: 80px;
+                left: 0;
+                width: 100%;
+                background-color: var(--card-bg);
+                padding: 20px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: var(--transition);
+                z-index: 999;
+            }
+            .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                transform: translateY(0);
+            }
+            .hamburger {
+                display: flex;
+            }
+            .mobile-nav {
+                display: none;
+            }
+            .hero {
+                padding: 140px 0 80px;
+            }
+            .hero h1 {
+                font-size: 2.3rem;
+            }
+            .preview-container {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero {
+                padding: 120px 0 60px;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            .tool-container {
+                padding: 25px;
+            }
+            .upload-area {
+                padding: 25px;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Status Message */
+        .status-message {
+            text-align: center;
+            color: var(--primary);
+            font-weight: 500;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header>
+        <div class="container header-container">
+            <a href="#" class="logo">
+                <i class="fas fa-palette"></i>
+                <span>ChronoMeterX</span>
+            </a>
+            
+            <ul class="nav-links" id="mainNav">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">Tools</a></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+            
+            <div class="nav-buttons">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn btn-outline">Login</button>
+                <button class="btn btn-primary">Sign Up</button>
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Advanced Image Recolor Tool</h1>
+            <p>Transform your images with our powerful recolor technology. Instantly change colors, create stunning effects, and enhance your visuals for any project.</p>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="startTool">
+                    <i class="fas fa-magic"></i> Start Recoloring
+                </button>
+                <button class="btn btn-outline">
+                    <i class="fas fa-play-circle"></i> View Demo
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool Section -->
+    <section class="tool-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Recolor Your Images</h2>
+                <p>Upload your image and transform its colors with our intuitive tool</p>
+            </div>
+            
+            <div class="tool-container">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Drag & Drop Your Image</h3>
+                    <p>or click to browse files</p>
+                    <p class="small">Supports JPG, PNG, SVG (Max 5MB)</p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    <div class="spinner" id="uploadSpinner"></div>
+                    <div class="status-message" id="statusMessage"></div>
+                </div>
+                
+                <div class="tool-options">
+                    <h3>Recolor Options</h3>
+                    <div class="options-grid">
+                        <div class="option-card">
+                            <h4><i class="fas fa-swatchbook"></i> Color Palette</h4>
+                            <p>Choose from predefined palettes or create your own</p>
+                            <div class="color-palette">
+                                <div class="color active" style="background-color: #4361ee;" data-color="#4361ee"></div>
+                                <div class="color" style="background-color: #3a0ca3;" data-color="#3a0ca3"></div>
+                                <div class="color" style="background-color: #7209b7;" data-color="#7209b7"></div>
+                                <div class="color" style="background-color: #f72585;" data-color="#f72585"></div>
+                                <div class="color" style="background-color: #4cc9f0;" data-color="#4cc9f0"></div>
+                                <div class="color" style="background-color: #2ec4b6;" data-color="#2ec4b6"></div>
+                                <div class="color" style="background-color: #ff9f1c;" data-color="#ff9f1c"></div>
+                                <div class="color" style="background-color: #e71d36;" data-color="#e71d36"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="option-card">
+                            <h4><i class="fas fa-sliders-h"></i> Hue Adjustment</h4>
+                            <p>Adjust the overall hue of your image</p>
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Hue:</span>
+                                    <span id="hueValue">0°</span>
+                                </div>
+                                <input type="range" min="0" max="360" value="0" class="slider" id="hueSlider">
+                            </div>
+                        </div>
+                        
+                        <div class="option-card">
+                            <h4><i class="fas fa-sun"></i> Saturation</h4>
+                            <p>Increase or decrease color intensity</p>
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Saturation:</span>
+                                    <span id="saturationValue">100%</span>
+                                </div>
+                                <input type="range" min="0" max="200" value="100" class="slider" id="saturationSlider">
+                            </div>
+                        </div>
+                        
+                        <div class="option-card">
+                            <h4><i class="fas fa-adjust"></i> Brightness</h4>
+                            <p>Control the lightness of your image</p>
+                            <div class="slider-container">
+                                <div class="slider-label">
+                                    <span>Brightness:</span>
+                                    <span id="brightnessValue">100%</span>
+                                </div>
+                                <input type="range" min="0" max="200" value="100" class="slider" id="brightnessSlider">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-outline" id="resetBtn">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                        <button class="btn btn-primary" id="applyBtn">
+                            <i class="fas fa-magic"></i> Apply Recolor
+                        </button>
+                        <button class="btn btn-primary" id="downloadBtn">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="preview-container">
+                    <div class="preview-box" id="originalPreview">
+                        <i class="fas fa-image" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h3>Original Image</h3>
+                        <p>Your uploaded image will appear here</p>
+                        <div class="preview-label">Original Image</div>
+                    </div>
+                    <div class="preview-box" id="processedPreview">
+                        <i class="fas fa-image" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h3>Processed Image</h3>
+                        <p>Recolored result will appear here</p>
+                        <div class="preview-label">Processed Image</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose ChronoMeterX</h2>
+                <p>Discover the features that make our tool stand out from the competition</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Instant Processing</h3>
+                    <p>Recolor images in real-time with optimized algorithms. No waiting for results.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3>Precise Controls</h3>
+                    <p>Fine-tune hue, saturation, and brightness with intuitive sliders.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Fully Responsive</h3>
+                    <p>Works perfectly on all devices from desktop to mobile.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-download-alt"></i>
+                    </div>
+                    <h3>One-Click Download</h3>
+                    <p>Instantly download your recolored images in high quality.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Unlimited Revisions</h3>
+                    <p>Adjust and re-edit your images as many times as needed.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Privacy Focused</h3>
+                    <p>Your images are never stored or shared without permission.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>ChronoMeterX</h3>
+                    <p>Advanced image processing tools for creators, designers, and developers.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Features</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Pricing</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Blog</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Tools</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Image Recolor</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Background Remover</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Photo Enhancer</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Vector Converter</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> AI Art Generator</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-envelope"></i> contact@chronometerx.com</a></li>
+                        <li><a href="#"><i class="fas fa-phone"></i> +1 (555) 123-4567</a></li>
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> San Francisco, CA</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 ChronoMeterX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <div style="text-align: center; padding: 30px 0;">
+                <div class="feature-icon" style="margin: 0 auto 20px; background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 style="margin-bottom: 15px;">Processing Complete!</h2>
+                <p>Your image has been successfully recolored. You can now download it or make further adjustments.</p>
+                <button class="btn btn-primary" style="margin-top: 20px;" id="modalDownload">
+                    <i class="fas fa-download"></i> Download Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Check for saved theme or prefered scheme
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && prefersDarkScheme.matches)) {
+            document.body.classList.add('dark-theme');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            
+            if (document.body.classList.contains('dark-theme')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Mobile Navigation
+        const hamburger = document.getElementById('hamburger');
+        const mainNav = document.getElementById('mainNav');
+        
+        hamburger.addEventListener('click', () => {
+            mainNav.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        
+        // File Upload Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const originalPreview = document.getElementById('originalPreview');
+        const processedPreview = document.getElementById('processedPreview');
+        const uploadSpinner = document.getElementById('uploadSpinner');
+        const statusMessage = document.getElementById('statusMessage');
+        let originalImage = null;
+        let processedImage = null;
+
+        // File Upload Handling
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#4361ee';
+            uploadArea.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '';
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '';
+            uploadArea.style.backgroundColor = '';
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+        
+        function handleFileUpload(file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPG, PNG, SVG)');
+                return;
+            }
+            
+            // Validate file size
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size exceeds 5MB limit');
+                return;
+            }
+            
+            // Show UI feedback
+            uploadSpinner.style.display = 'block';
+            statusMessage.style.display = 'block';
+            statusMessage.textContent = 'Processing image...';
+            uploadArea.querySelector('h3').textContent = 'Processing Image...';
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                // Update original preview
+                originalPreview.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                originalPreview.appendChild(img);
+                const label = document.createElement('div');
+                label.className = 'preview-label';
+                label.textContent = 'Original Image';
+                originalPreview.appendChild(label);
+                
+                // Create processed image
+                processedPreview.innerHTML = '';
+                const processedImg = document.createElement('img');
+                processedImg.src = event.target.result;
+                processedImg.id = 'processedImage';
+                processedPreview.appendChild(processedImg);
+                const processedLabel = document.createElement('div');
+                processedLabel.className = 'preview-label';
+                processedLabel.textContent = 'Processed Image';
+                processedPreview.appendChild(processedLabel);
+                
+                // Hide loading elements
+                uploadSpinner.style.display = 'none';
+                statusMessage.style.display = 'none';
+                uploadArea.querySelector('h3').textContent = 'Drag & Drop Your Image';
+                
+                // Scroll to previews
+                originalPreview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Color Palette Selection
+        const colorElements = document.querySelectorAll('.color');
+        colorElements.forEach(color => {
+            color.addEventListener('click', () => {
+                document.querySelector('.color.active').classList.remove('active');
+                color.classList.add('active');
+                
+                // Apply hue rotation based on color
+                const hueValue = Math.floor(Math.random() * 360);
+                hueSlider.value = hueValue;
+                hueValue.textContent = `${hueValue}°`;
+                applyFilters();
+            });
+        });
+        
+        // Slider Updates
+        const hueSlider = document.getElementById('hueSlider');
+        const saturationSlider = document.getElementById('saturationSlider');
+        const brightnessSlider = document.getElementById('brightnessSlider');
+        const hueValue = document.getElementById('hueValue');
+        const saturationValue = document.getElementById('saturationValue');
+        const brightnessValue = document.getElementById('brightnessValue');
+        
+        hueSlider.addEventListener('input', () => {
+            hueValue.textContent = `${hueSlider.value}°`;
+            applyFilters();
+        });
+        
+        saturationSlider.addEventListener('input', () => {
+            saturationValue.textContent = `${saturationSlider.value}%`;
+            applyFilters();
+        });
+        
+        brightnessSlider.addEventListener('input', () => {
+            brightnessValue.textContent = `${brightnessSlider.value}%`;
+            applyFilters();
+        });
+        
+        function applyFilters() {
+            const processedImg = document.getElementById('processedImage');
+            if (processedImg) {
+                processedImg.style.filter = `
+                    hue-rotate(${hueSlider.value}deg)
+                    saturate(${saturationSlider.value}%)
+                    brightness(${brightnessSlider.value}%)
+                `;
+            }
+        }
+        
+        // Apply Recolor
+        const applyBtn = document.getElementById('applyBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const modalDownload = document.getElementById('modalDownload');
+        
+        applyBtn.addEventListener('click', () => {
+            // Show processing effect
+            const processedImg = document.getElementById('processedImage');
+            if (processedImg) {
+                // Show spinner while processing
+                uploadSpinner.style.display = 'block';
+                statusMessage.style.display = 'block';
+                statusMessage.textContent = 'Applying filters...';
+                
+                setTimeout(() => {
+                    // Apply filters
+                    applyFilters();
+                    
+                    // Hide spinner and show success
+                    uploadSpinner.style.display = 'none';
+                    statusMessage.style.display = 'none';
+                }, 300);
+            }
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            // Reset sliders
+            hueSlider.value = 0;
+            saturationSlider.value = 100;
+            brightnessSlider.value = 100;
+            hueValue.textContent = '0°';
+            saturationValue.textContent = '100%';
+            brightnessValue.textContent = '100%';
+            
+            // Reset image
+            const originalImg = originalPreview.querySelector('img');
+            const processedImg = processedPreview.querySelector('img');
+            if (originalImg && processedImg) {
+                processedImg.src = originalImg.src;
+                processedImg.style.filter = 'none';
+            }
+            
+            // Reset color palette
+            document.querySelector('.color.active').classList.remove('active');
+            colorElements[0].classList.add('active');
+        });
+        
+        // Download functionality
+        function downloadImage() {
+            const processedImg = document.getElementById('processedImage');
+            if (!processedImg) {
+                alert('Please upload and process an image first');
+                return;
+            }
+            
+            // Create canvas to capture filtered image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match image
+            canvas.width = processedImg.naturalWidth;
+            canvas.height = processedImg.naturalHeight;
+            
+            // Apply filters to canvas
+            ctx.filter = `
+                hue-rotate(${hueSlider.value}deg)
+                saturate(${saturationSlider.value}%)
+                brightness(${brightnessSlider.value}%)
+            `;
+            
+            // Draw image on canvas
+            ctx.drawImage(processedImg, 0, 0, canvas.width, canvas.height);
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.download = 'recolored-image.png';
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Attach download functionality to buttons
+        downloadBtn.addEventListener('click', downloadImage);
+        modalDownload.addEventListener('click', downloadImage);
+        
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Animate elements on scroll
+        gsap.utils.toArray('.feature-card, .option-card, .section-title, .tool-container').forEach(element => {
+            gsap.from(element, {
+                scrollTrigger: {
+                    trigger: element,
+                    start: "top 90%",
+                    toggleActions: "play none none none"
+                },
+                opacity: 0,
+                y: 50,
+                duration: 0.8
+            });
+        });
+        
+        // Hero text animation
+        gsap.from('.hero-content', {
+            duration: 1,
+            opacity: 0,
+            y: 50,
+            ease: "power3.out"
+        });
+        
+        // Start tool button scroll
+        document.getElementById('startTool').addEventListener('click', () => {
+            document.querySelector('.tool-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+    </script>
+</body>
+</html>
